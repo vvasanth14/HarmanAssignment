@@ -24,7 +24,7 @@ namespace RestApi.Controllers
             {
                 //Calling service layer to get the request Patient and episode details 
                 PatientService patientService = new PatientService(_databaseContext);
-                return  patientService.getPatientEpisodesById(1);
+                return  patientService.getPatientEpisodesById(patientId);
             }
             catch (Exception ex)
             {
