@@ -2,7 +2,6 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/PatientsAndEpisodes-M3 Developers/PatientsAndEpisodes/readme.txt
 /PatientsAndEpisodes-M3 Developers/PatientsAndEpisodes/Instructions for the candidate.txt
 /PatientsAndEpisodes-M3 Developers/PatientsAndEpisodes/Instructions for the assessor.txt
 *.swp
