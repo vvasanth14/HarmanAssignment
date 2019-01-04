@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Web.Http;
-using RestApi.Models;
-using System.Net.Http;
 using System.Net;
-using RestApi.Services;
+using System.Net.Http;
+using System.Web.Http;
+using Newtonsoft.Json;
 using RestApi.Interfaces;
+using RestApi.Services;
 
 namespace RestApi.Controllers
 {
@@ -13,29 +12,31 @@ namespace RestApi.Controllers
     {
         private readonly IDatabaseContext _databaseContext;
         //DI -Constructor injection
-        public PatientsController( IDatabaseContext databaseContext )
+        public PatientsController(IDatabaseContext databaseContext)
         {
             _databaseContext = databaseContext;
         }
         [HttpGet]
-        public IEnumerable<Patient> Get(int patientId)
+        public HttpResponseMessage Get(int patientId)
         {
+            var response = new HttpResponseMessage();
+
             try
             {
                 //Calling service layer to get the request Patient and episode details 
                 PatientService patientService = new PatientService(_databaseContext);
-                return  patientService.getPatientEpisodesById(patientId);
+                var patientList = patientService.getPatientEpisodesById(patientId);
+                response.StatusCode = HttpStatusCode.OK;
+                response.Content = new StringContent(JsonConvert.SerializeObject(patientService.getPatientEpisodesById(patientId)),
+                                                        System.Text.Encoding.UTF8, "application/json");
             }
             catch (Exception ex)
             {
-                var response = new HttpResponseMessage(HttpStatusCode.InternalServerError)
-                {
-                    Content = new StringContent(string.Format("Error occured while fetching data for patientID= {0}", patientId)),
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(response);
-            }
+                response.Content = new StringContent(string.Format("Error occured while fetching data for patientID= {0}", patientId));
+                response.ReasonPhrase = ex.Message;
 
+            }
+            return response;
         }
     }
 }

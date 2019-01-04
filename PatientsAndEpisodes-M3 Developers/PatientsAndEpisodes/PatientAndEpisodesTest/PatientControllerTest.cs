@@ -3,19 +3,21 @@ using System.Data.Entity;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Newtonsoft.Json;
+using RestApi.Controllers;
 using RestApi.Interfaces;
 using RestApi.Models;
-using RestApi.Services;
 
 namespace PatientAndEpisodesTest
 {
     [TestClass]
     public class PatientControllerTest
     {
+
         [TestMethod]
-        public void GetPatientControllerTest()
+        public void GetPatientControllerWithMoqTest()
         {
-            //Setup patient mock Data
+            //Setup patient mock      
             var patientMockList = SetupMockPatientData();
 
             //Constructing mock IDbSet<Patient> ,so that we can return mock Patient DBSet from PatientContext 
@@ -30,11 +32,10 @@ namespace PatientAndEpisodesTest
             var patientContext = new Mock<IDatabaseContext>();
             patientContext.Setup(p => p.Patients).Returns(mockPatient.Object);
 
-            //Passing the PatientContext which has the mocked Patient DBset(not from Database) to PatientService layer ,to test getPatientEpisodesById method 
-            PatientService patientService = new PatientService(patientContext.Object);
-            var expectedPatientList = patientService.getPatientEpisodesById(101);
-
-
+            //Passing the PatientContext which has the mocked Patient DBset(not from Database) to PatientsController layer ,to test Get method 
+            PatientsController patientsController = new PatientsController(patientContext.Object);
+            var httpPatientResponse = patientsController.Get(101);
+            var expectedPatientList = JsonConvert.DeserializeObject<List<Patient>>(httpPatientResponse.Content.ReadAsStringAsync().Result);
             //check if the list is not empty and has actual number of episodes as exist in the mock data 
             Assert.IsNotNull(expectedPatientList, "Patient mock obbject is not null");
             Assert.IsTrue(expectedPatientList.Any(p => p.Episodes.Count() == 4), "Patient and Episodes visit equal test passed");
@@ -63,7 +64,7 @@ namespace PatientAndEpisodesTest
                                         new Patient() { PatientId = 103,
                                             Episodes =  new List<Episode>() { new Episode() { PatientId = 103, Diagnosis = "Sprained wrist" },
                                                         new Episode() { PatientId = 101, Diagnosis = "Head Ache" }
-                                                                             }     
+                                                                             }
                                                      },
                                         new Patient() { PatientId = 104,
                                             Episodes =  new List<Episode>() { new Episode() { PatientId = 101, Diagnosis = "Laryngitis" }
@@ -72,6 +73,30 @@ namespace PatientAndEpisodesTest
             };
 
             return patientList;
+        }
+
+        
+
+
+        [TestMethod]
+        public void GetPatientControllerWithInMemoryTest()
+        {
+            //Setup patient mock      
+
+            InMemoryPatientContext inMemoryPatientContext = new InMemoryPatientContext();
+            foreach (var item in SetupMockPatientData())
+            {
+                inMemoryPatientContext.Patients.Add(item);
+            }
+
+            PatientsController patientsController = new PatientsController(inMemoryPatientContext);
+            var httpPatientResponse = patientsController.Get(110);
+            var expectedPatientList = JsonConvert.DeserializeObject<List<Patient>>(httpPatientResponse.Content.ReadAsStringAsync().Result);
+           
+            
+            //check if the list is not empty and has actual number of episodes as exist in the mock data 
+            Assert.IsNotNull(expectedPatientList, "Patient mock obbject is not null");
+            Assert.IsTrue(expectedPatientList.Any(p => p.Episodes.Count() == 3), "Patient and Episodes visit equal test passed");
         }
     }
 }
