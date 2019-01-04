@@ -13,4 +13,7 @@
 #unit test projects 
 RestApi.UnitTests/PatientAndEpisodesTest
 
--Used MOQ for mocking the data & constructed IDbSet<Patient> ,to return mock Patient DBSet<Patient> from PatientContext & test getPatientEpisodesById() method independently without hitting the database 
+
+-Used InMemoryPatientContext object to mock the Patient DBSet<Patient> & tested Get() method of PatientController 
+
+-Used MOQ for mocking the data & constructed IDbSet<Patient> ,to return mock Patient DBSet<Patient> from PatientContext & test Get() method of PatientController independently without hitting the database 
