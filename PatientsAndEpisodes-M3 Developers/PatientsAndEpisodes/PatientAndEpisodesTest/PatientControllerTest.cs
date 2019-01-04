@@ -90,7 +90,7 @@ namespace PatientAndEpisodesTest
             }
 
             PatientsController patientsController = new PatientsController(inMemoryPatientContext);
-            var httpPatientResponse = patientsController.Get(110);
+            var httpPatientResponse = patientsController.Get(102);
             var expectedPatientList = JsonConvert.DeserializeObject<List<Patient>>(httpPatientResponse.Content.ReadAsStringAsync().Result);
            
             
